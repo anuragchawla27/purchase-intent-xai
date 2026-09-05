@@ -1,0 +1,19 @@
+column,type,description
+Administrative,numeric (int),"Number of administrative-type pages (login, account) visited in the session."
+Administrative_Duration,numeric (sec),Total time spent on administrative pages.
+Informational,numeric (int),Number of informational pages visited.
+Informational_Duration,numeric (sec),Total time spent on informational pages.
+ProductRelated,numeric (int),Number of product-related pages visited.
+ProductRelated_Duration,numeric (sec),Total time spent on product-related pages.
+BounceRates,numeric (0-1),Average bounce rate of the pages visited in the session.
+ExitRates,numeric (0-1),Average exit rate of the pages visited in the session.
+PageValues,numeric,Average value of the pages visited (strong purchase signal).
+SpecialDay,numeric (0-1),Closeness of the session to a special shopping day.
+Month,categorical,Month of the visit.
+OperatingSystems,categorical (int-coded),"Operating system, encoded as an integer ID — NOT a continuous quantity."
+Browser,categorical (int-coded),"Browser, encoded as an integer ID — NOT continuous."
+Region,categorical (int-coded),Geographic region ID — NOT continuous.
+TrafficType,categorical (int-coded),Traffic source type ID — NOT continuous.
+VisitorType,categorical,Returning_Visitor / New_Visitor / Other.
+Weekend,boolean,Whether the session occurred on a weekend.
+Converted,target (binary),1 = the session ended in a purchase (positive class). The value to predict.
