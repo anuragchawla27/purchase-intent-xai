@@ -1,0 +1,23 @@
+paths:
+  dataset: "Dataset/ecommerce_sessions.csv"
+  data_dictionary: "Dataset/data_dictionary.csv"
+  models_dir: "models/"
+
+random_seed: 42
+
+target_column: "Converted"
+
+split:
+  test_size: 0.2
+  stratify: true
+
+categorical_columns:
+  - "OperatingSystems"
+  - "Browser"
+  - "Region"
+  - "TrafficType"
+  - "VisitorType"
+  - "Month"
+  - "Weekend"
+
+decision_threshold: 0.5 
