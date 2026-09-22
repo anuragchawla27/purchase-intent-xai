@@ -20,4 +20,4 @@ categorical_columns:
   - "Month"
   - "Weekend"
 
-decision_threshold: 0.5 
+decision_threshold: 0.45
