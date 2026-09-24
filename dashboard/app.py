@@ -40,6 +40,14 @@ def load_data():
     return df
 
 
+@st.cache_data
+def load_model_comparison():
+    """Cached read of pre-computed model comparison results — never retrains."""
+    comparison_df = pd.read_csv("reports/model_comparison.csv")
+    final_summary_df = pd.read_csv("reports/final_model_summary.csv")
+    return comparison_df, final_summary_df
+
+
 @st.cache_resource
 def load_explainer(_pipeline):
     """Cached so the SHAP explainer builds once, not on every form submission."""
@@ -185,7 +193,7 @@ def show_funnel_cohort(df):
         )
         st.plotly_chart(fig_visitor, use_container_width=True)
 
-        st.subheader("PageValues vs ExitRates (Cohort View)")
+    st.subheader("PageValues vs ExitRates (Cohort View)")
     sample_df = df.sample(min(2000, len(df)), random_state=CONFIG["random_seed"])
     fig_scatter = px.scatter(
         sample_df, x="ExitRates", y="PageValues",
@@ -196,6 +204,50 @@ def show_funnel_cohort(df):
         color_discrete_map={"No Purchase": "#EF553B", "Purchase": "#636EFA"}
     )
     st.plotly_chart(fig_scatter, use_container_width=True)
+
+
+def show_model_comparison():
+    st.header("Model Comparison")
+    st.markdown(
+        "Results from offline training and evaluation "
+        "(`notebooks/03_modeling.ipynb`) — this dashboard reads saved results "
+        "and never retrains models."
+    )
+
+    comparison_df, final_summary_df = load_model_comparison()
+
+    st.subheader("Final Model Selection")
+    st.dataframe(final_summary_df, hide_index=True, use_container_width=True)
+
+    st.subheader("Six-Model Comparison (class_weight='balanced' baseline)")
+    display_df = comparison_df.sort_values("pr_auc", ascending=False).reset_index(drop=True)
+    st.dataframe(
+        display_df.style.format({
+            "accuracy": "{:.3f}", "precision": "{:.3f}", "recall": "{:.3f}",
+            "f1": "{:.3f}", "roc_auc": "{:.3f}", "pr_auc": "{:.3f}",
+            "cv_pr_auc_mean": "{:.3f}", "cv_pr_auc_std": "{:.3f}",
+        }),
+        use_container_width=True
+    )
+
+    st.subheader("PR-AUC by Model")
+    fig_bar = px.bar(
+        display_df, x="model", y="pr_auc",
+        title="PR-AUC Comparison Across Six Models",
+        labels={"pr_auc": "PR-AUC", "model": "Model"}
+    )
+    fig_bar.add_hline(
+        y=0.157, line_dash="dash", line_color="gray",
+        annotation_text="No-skill baseline (~15.7% positive class rate)",
+        annotation_position="top left"
+    )
+    st.plotly_chart(fig_bar, use_container_width=True)
+
+    st.caption(
+        "CatBoost was selected as the final model based on leading PR-AUC and recall "
+        "on the buying class, then improved further via hyperparameter tuning "
+        "(see Final Model Selection table above)."
+    )
 
 
 def main():
@@ -217,7 +269,7 @@ def main():
     elif section == "Funnel & Cohort Analytics":
         show_funnel_cohort(df)
     elif section == "Model Comparison":
-        st.info("Coming next step.")
+        show_model_comparison()
     elif section == "Explainability":
         st.info("Coming next step.")
     elif section == "Performance Metrics":
