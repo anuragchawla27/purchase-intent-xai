@@ -248,7 +248,42 @@ def show_model_comparison():
         "on the buying class, then improved further via hyperparameter tuning "
         "(see Final Model Selection table above)."
     )
+def show_explainability():
+    st.header("Explainability")
+    st.markdown(
+        "Global and local explanations from SHAP and LIME, generated in "
+        "`notebooks/04_xai.ipynb`. See the [model card](../docs/model_card.md) "
+        "for the full written analysis."
+    )
 
+    st.subheader("Global Feature Importance (SHAP)")
+    col1, col2 = st.columns(2)
+    with col1:
+        st.image("docs/shap_global_summary.png", caption="SHAP Beeswarm — direction and magnitude per session")
+    with col2:
+        st.image("docs/shap_global_bar.png", caption="SHAP Mean |Value| — overall feature importance")
+
+    st.subheader("Local Explanations (Example Sessions)")
+    tab1, tab2, tab3 = st.tabs(["Confident Purchase", "Confident No Purchase", "Borderline Case"])
+
+    with tab1:
+        st.image("docs/shap_local_purchase_example.png", caption="SHAP — confident Purchase prediction")
+        st.image("docs/lime_purchase_example.png", caption="LIME — same session, independent method")
+
+    with tab2:
+        st.image("docs/shap_local_no_purchase_example.png", caption="SHAP — confident No Purchase prediction")
+        st.image("docs/lime_no_purchase_example.png", caption="LIME — same session, independent method")
+
+    with tab3:
+        st.image("docs/shap_local_borderline_example.png", caption="SHAP — borderline prediction near the 0.45 threshold")
+        st.image("docs/lime_borderline_example.png", caption="LIME — same session, independent method")
+
+    st.info(
+        "SHAP and LIME agree on prediction direction across all examined cases, "
+        "but agree on the dominant feature only for the confident Purchase case — "
+        "LIME tends to under-weight PageValues for non-Purchase and borderline "
+        "sessions. See the model card for full discussion."
+    )
 
 def main():
     st.title("E-Commerce Purchase Intent Dashboard")
@@ -271,7 +306,7 @@ def main():
     elif section == "Model Comparison":
         show_model_comparison()
     elif section == "Explainability":
-        st.info("Coming next step.")
+        show_explainability()
     elif section == "Performance Metrics":
         st.info("Coming next step.")
 
