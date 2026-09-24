@@ -12,6 +12,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import joblib
+import plotly.express as px
 
 project_root = Path(__file__).resolve().parent.parent
 sys.path.append(str(project_root))
@@ -133,6 +134,70 @@ def show_live_scoring(pipeline):
         st.dataframe(contrib_df, hide_index=True)
 
 
+def show_funnel_cohort(df):
+    st.header("Funnel & Cohort Analytics")
+
+    st.subheader("Conversion Funnel")
+    total_sessions = len(df)
+    engaged_sessions = len(df[df["ProductRelated"] > 0])
+    converted_sessions = len(df[df["Converted"] == 1])
+
+    funnel_col1, funnel_col2, funnel_col3 = st.columns(3)
+    funnel_col1.metric("All Sessions", f"{total_sessions:,}")
+    funnel_col2.metric("Viewed Product Pages", f"{engaged_sessions:,}",
+                        f"{engaged_sessions/total_sessions*100:.1f}%")
+    funnel_col3.metric("Converted", f"{converted_sessions:,}",
+                        f"{converted_sessions/total_sessions*100:.1f}%")
+
+    st.divider()
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.subheader("Conversion Rate by Month")
+        month_stats = df.groupby("Month").agg(
+            sessions=("Converted", "count"),
+            conversion_rate=("Converted", "mean")
+        ).reset_index()
+        month_stats["conversion_rate"] = month_stats["conversion_rate"] * 100
+
+        fig_month = px.bar(
+            month_stats, x="Month", y="conversion_rate",
+            hover_data=["sessions"],
+            labels={"conversion_rate": "Conversion Rate (%)"},
+            title="Conversion Rate by Month"
+        )
+        st.plotly_chart(fig_month, use_container_width=True)
+
+    with col2:
+        st.subheader("Conversion Rate by Visitor Type")
+        visitor_stats = df.groupby("VisitorType").agg(
+            sessions=("Converted", "count"),
+            conversion_rate=("Converted", "mean")
+        ).reset_index()
+        visitor_stats["conversion_rate"] = visitor_stats["conversion_rate"] * 100
+
+        fig_visitor = px.bar(
+            visitor_stats, x="VisitorType", y="conversion_rate",
+            hover_data=["sessions"],
+            labels={"conversion_rate": "Conversion Rate (%)"},
+            title="Conversion Rate by Visitor Type"
+        )
+        st.plotly_chart(fig_visitor, use_container_width=True)
+
+        st.subheader("PageValues vs ExitRates (Cohort View)")
+    sample_df = df.sample(min(2000, len(df)), random_state=CONFIG["random_seed"])
+    fig_scatter = px.scatter(
+        sample_df, x="ExitRates", y="PageValues",
+        color=sample_df["Converted"].map({0: "No Purchase", 1: "Purchase"}),
+        opacity=0.5,
+        labels={"color": "Outcome"},
+        title="PageValues vs ExitRates by Outcome (sampled for performance)",
+        color_discrete_map={"No Purchase": "#EF553B", "Purchase": "#636EFA"}
+    )
+    st.plotly_chart(fig_scatter, use_container_width=True)
+
+
 def main():
     st.title("E-Commerce Purchase Intent Dashboard")
 
@@ -150,7 +215,7 @@ def main():
     elif section == "Live Session Scoring":
         show_live_scoring(pipeline)
     elif section == "Funnel & Cohort Analytics":
-        st.info("Coming next step.")
+        show_funnel_cohort(df)
     elif section == "Model Comparison":
         st.info("Coming next step.")
     elif section == "Explainability":
