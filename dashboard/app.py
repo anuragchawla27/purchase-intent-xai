@@ -284,7 +284,61 @@ def show_explainability():
         "LIME tends to under-weight PageValues for non-Purchase and borderline "
         "sessions. See the model card for full discussion."
     )
+@st.cache_data
+def load_final_metrics():
+    """Cached read of the final model's metrics at the chosen threshold — never recomputed."""
+    return pd.read_csv("reports/final_metrics.csv").iloc[0]
 
+
+def show_performance_metrics():
+    st.header("Performance Metrics")
+    st.markdown(
+        "Final model performance at the chosen decision threshold "
+        f"({CONFIG['decision_threshold']}), evaluated on the held-out test set. "
+        "See `notebooks/03_modeling.ipynb` for the full threshold-selection analysis."
+    )
+
+    metrics = load_final_metrics()
+
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric("Precision", f"{metrics['precision']:.3f}")
+    col2.metric("Recall", f"{metrics['recall']:.3f}")
+    col3.metric("Test PR-AUC", f"{metrics['test_pr_auc']:.3f}")
+    col4.metric("CV PR-AUC", f"{metrics['cv_pr_auc_mean']:.3f}")
+
+    st.divider()
+
+    st.subheader("Confusion Matrix")
+    cm_data = pd.DataFrame(
+        [[int(metrics["true_negatives"]), int(metrics["false_positives"])],
+         [int(metrics["false_negatives"]), int(metrics["true_positives"])]],
+        index=["Actual: No Purchase", "Actual: Purchase"],
+        columns=["Predicted: No Purchase", "Predicted: Purchase"]
+    )
+
+    fig_cm = px.imshow(
+        cm_data, text_auto=True, color_continuous_scale="Blues",
+        labels=dict(color="Count"),
+        title=f"Confusion Matrix at threshold = {CONFIG['decision_threshold']}"
+    )
+    st.plotly_chart(fig_cm, use_container_width=True)
+
+    st.subheader("Business Value")
+    st.metric(
+        "Net Value at Chosen Threshold",
+        f"${metrics['net_business_value']:,.0f}",
+        help="Illustrative: $50 per captured conversion, $5 per intervention. "
+             "See model card for full assumptions and caveats."
+    )
+
+    missed_buyers = int(metrics["false_negatives"])
+    total_buyers = int(metrics["false_negatives"]) + int(metrics["true_positives"])
+    st.caption(
+        f"At this threshold, {missed_buyers} of {total_buyers} actual buyers "
+        f"({missed_buyers/total_buyers*100:.1f}%) are missed by the model — "
+        f"the recall/precision trade-off chosen to maximize net business value "
+        f"under the stated assumptions."
+    )
 def main():
     st.title("E-Commerce Purchase Intent Dashboard")
 
@@ -308,7 +362,7 @@ def main():
     elif section == "Explainability":
         show_explainability()
     elif section == "Performance Metrics":
-        st.info("Coming next step.")
+        show_performance_metrics()
 
 
 if __name__ == "__main__":
