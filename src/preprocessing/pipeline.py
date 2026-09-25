@@ -4,16 +4,16 @@ Thin-slice version — imbalance strategy and feature engineering come later.
 """
 
 import logging
-from sklearn.compose import ColumnTransformer
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
-from src.config.settings import CONFIG
+from sklearn.compose import ColumnTransformer
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
 logger = logging.getLogger(__name__)
 
 
-def build_preprocessing_pipeline(numeric_columns: list, categorical_columns: list) -> ColumnTransformer:
+def build_preprocessing_pipeline(
+    numeric_columns: list, categorical_columns: list
+) -> ColumnTransformer:
     """
     Build a ColumnTransformer that scales numeric columns and
     one-hot encodes categorical columns.
@@ -34,6 +34,7 @@ def build_preprocessing_pipeline(numeric_columns: list, categorical_columns: lis
     )
     logger.info(
         "Built preprocessing pipeline: %d numeric, %d categorical columns",
-        len(numeric_columns), len(categorical_columns)
+        len(numeric_columns),
+        len(categorical_columns),
     )
     return preprocessor

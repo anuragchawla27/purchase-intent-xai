@@ -10,12 +10,14 @@ import numpy as np
 import pandas as pd
 from fastapi import FastAPI, HTTPException
 
-from src.config.settings import CONFIG
-from src.api.schemas import SessionInput, PredictionResponse, ContributingFeature
 from src.api.dependencies import load_model_artifacts, model_state
+from src.api.schemas import ContributingFeature, PredictionResponse, SessionInput
+from src.config.settings import CONFIG
 from src.features.engineer import engineer_features
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 
@@ -66,16 +68,25 @@ def predict(session: SessionInput):
             confidence = "Low"
 
         transformed = model_state.preprocessor.transform(raw_df)
-        transformed_dense = np.asarray(transformed.todense()) if hasattr(transformed, "todense") else transformed
+        transformed_dense = (
+            np.asarray(transformed.todense())
+            if hasattr(transformed, "todense")
+            else transformed
+        )
         shap_values = model_state.explainer.shap_values(transformed_dense)[0]
 
         top_idx = np.argsort(np.abs(shap_values))[::-1][:5]
         top_features = [
-            ContributingFeature(feature=model_state.feature_names[i], contribution=round(float(shap_values[i]), 4))
+            ContributingFeature(
+                feature=model_state.feature_names[i],
+                contribution=round(float(shap_values[i]), 4),
+            )
             for i in top_idx
         ]
 
-        logger.info("Prediction: %s (proba=%.4f, confidence=%s)", prediction, proba, confidence)
+        logger.info(
+            "Prediction: %s (proba=%.4f, confidence=%s)", prediction, proba, confidence
+        )
 
         return PredictionResponse(
             prediction=prediction,
@@ -87,4 +98,4 @@ def predict(session: SessionInput):
 
     except Exception as e:
         logger.error("Prediction failed: %s", str(e))
-        raise HTTPException(status_code=500, detail=f"Prediction failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Prediction failed: {e!s}") from e

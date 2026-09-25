@@ -5,9 +5,10 @@ across every request.
 """
 
 import logging
+from pathlib import Path
+
 import joblib
 import shap
-from pathlib import Path
 
 from src.config.settings import CONFIG
 
@@ -16,6 +17,7 @@ logger = logging.getLogger(__name__)
 
 class ModelState:
     """Holds everything the API needs, loaded once."""
+
     pipeline = None
     preprocessor = None
     classifier = None
@@ -31,7 +33,9 @@ def load_model_artifacts():
     Loads the trained pipeline and builds the SHAP explainer.
     Called once at app startup via the FastAPI lifespan handler.
     """
-    artifact_path = Path(CONFIG["paths"]["models_dir"]) / "final_catboost_pipeline.joblib"
+    artifact_path = (
+        Path(CONFIG["paths"]["models_dir"]) / "final_catboost_pipeline.joblib"
+    )
 
     if not artifact_path.exists():
         logger.error("Model artifact not found at %s", artifact_path)

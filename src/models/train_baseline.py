@@ -4,11 +4,12 @@ Not meant to be a good model — meant to prove the pipeline works.
 """
 
 import logging
-import joblib
 from pathlib import Path
+
+import joblib
 from sklearn.linear_model import LogisticRegression
-from sklearn.pipeline import Pipeline
 from sklearn.model_selection import train_test_split
+from sklearn.pipeline import Pipeline
 
 from src.config.settings import CONFIG
 from src.data.loader import load_sessions_data
@@ -28,15 +29,15 @@ def train_baseline():
     target = CONFIG["target_column"]
     categorical_columns = CONFIG["categorical_columns"]
     numeric_columns = [
-        col for col in df.columns
-        if col not in categorical_columns + [target]
+        col for col in df.columns if col not in categorical_columns + [target]
     ]
 
     X = df[numeric_columns + categorical_columns]
     y = df[target]
 
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y,
+        X,
+        y,
         test_size=CONFIG["split"]["test_size"],
         stratify=y if CONFIG["split"]["stratify"] else None,
         random_state=CONFIG["random_seed"],
@@ -44,13 +45,20 @@ def train_baseline():
 
     preprocessor = build_preprocessing_pipeline(numeric_columns, categorical_columns)
 
-    model = Pipeline(steps=[
-        ("preprocessor", preprocessor),
-        ("classifier", LogisticRegression(max_iter=1000, random_state=CONFIG["random_seed"])),
-    ])
+    model = Pipeline(
+        steps=[
+            ("preprocessor", preprocessor),
+            (
+                "classifier",
+                LogisticRegression(max_iter=1000, random_state=CONFIG["random_seed"]),
+            ),
+        ]
+    )
 
     model.fit(X_train, y_train)
-    logger.info("Baseline model trained. Test accuracy: %.3f", model.score(X_test, y_test))
+    logger.info(
+        "Baseline model trained. Test accuracy: %.3f", model.score(X_test, y_test)
+    )
 
     models_dir = Path(CONFIG["paths"]["models_dir"])
     models_dir.mkdir(parents=True, exist_ok=True)

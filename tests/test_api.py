@@ -5,16 +5,27 @@ input validation, and unknown-category handling.
 
 import pytest
 from fastapi.testclient import TestClient
+
 from src.api.main import app
 
 VALID_SESSION = {
-    "Administrative": 1, "Administrative_Duration": 14.65,
-    "Informational": 0, "Informational_Duration": 0.0,
-    "ProductRelated": 19, "ProductRelated_Duration": 283.88,
-    "BounceRates": 0.008, "ExitRates": 0.042, "PageValues": 68.58,
-    "SpecialDay": 0.0, "Month": "May", "OperatingSystems": 1,
-    "Browser": 1, "Region": 1, "TrafficType": 1,
-    "VisitorType": "Returning_Visitor", "Weekend": False
+    "Administrative": 1,
+    "Administrative_Duration": 14.65,
+    "Informational": 0,
+    "Informational_Duration": 0.0,
+    "ProductRelated": 19,
+    "ProductRelated_Duration": 283.88,
+    "BounceRates": 0.008,
+    "ExitRates": 0.042,
+    "PageValues": 68.58,
+    "SpecialDay": 0.0,
+    "Month": "May",
+    "OperatingSystems": 1,
+    "Browser": 1,
+    "Region": 1,
+    "TrafficType": 1,
+    "VisitorType": "Returning_Visitor",
+    "Weekend": False,
 }
 
 

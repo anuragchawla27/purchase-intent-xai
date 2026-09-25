@@ -5,8 +5,7 @@ in the project, so the API schema can never silently drift from the
 model's actual expected input.
 """
 
-from pydantic import BaseModel, Field
-from typing import Optional
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class SessionInput(BaseModel):
@@ -14,7 +13,10 @@ class SessionInput(BaseModel):
     A single e-commerce session, matching the raw feature schema
     the trained pipeline expects (before preprocessing).
     """
-    Administrative: int = Field(..., ge=0, description="Number of administrative pages visited")
+
+    Administrative: int = Field(
+        ..., ge=0, description="Number of administrative pages visited"
+    )
     Administrative_Duration: float = Field(..., ge=0)
     Informational: int = Field(..., ge=0)
     Informational_Duration: float = Field(..., ge=0)
@@ -32,18 +34,29 @@ class SessionInput(BaseModel):
     VisitorType: str
     Weekend: bool
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
-                "Administrative": 1, "Administrative_Duration": 14.65,
-                "Informational": 0, "Informational_Duration": 0.0,
-                "ProductRelated": 19, "ProductRelated_Duration": 283.88,
-                "BounceRates": 0.008, "ExitRates": 0.042, "PageValues": 68.58,
-                "SpecialDay": 0.0, "Month": "May", "OperatingSystems": 1,
-                "Browser": 1, "Region": 1, "TrafficType": 1,
-                "VisitorType": "Returning_Visitor", "Weekend": False
+                "Administrative": 1,
+                "Administrative_Duration": 14.65,
+                "Informational": 0,
+                "Informational_Duration": 0.0,
+                "ProductRelated": 19,
+                "ProductRelated_Duration": 283.88,
+                "BounceRates": 0.008,
+                "ExitRates": 0.042,
+                "PageValues": 68.58,
+                "SpecialDay": 0.0,
+                "Month": "May",
+                "OperatingSystems": 1,
+                "Browser": 1,
+                "Region": 1,
+                "TrafficType": 1,
+                "VisitorType": "Returning_Visitor",
+                "Weekend": False,
             }
         }
+    )
 
 
 class ContributingFeature(BaseModel):

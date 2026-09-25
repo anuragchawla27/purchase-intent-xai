@@ -4,6 +4,7 @@ Data ingestion layer: loads and validates the raw sessions CSV.
 
 import logging
 from pathlib import Path
+
 import pandas as pd
 
 from src.config.settings import CONFIG
@@ -32,7 +33,7 @@ EXPECTED_COLUMNS = [
 ]
 
 
-def load_sessions_data(path: str = None) -> pd.DataFrame:
+def load_sessions_data(path: str | None = None) -> pd.DataFrame:
     """
     Load the e-commerce sessions dataset and validate its schema.
 
