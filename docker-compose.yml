@@ -1,0 +1,20 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    container_name: purchase-intent-api
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+  dashboard:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.dashboard
+    container_name: purchase-intent-dashboard
+    ports:
+      - "8501:8501"
+    depends_on:
+      - api
+    restart: unless-stopped
