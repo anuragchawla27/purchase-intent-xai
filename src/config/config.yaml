@@ -1,6 +1,6 @@
 paths:
-  dataset: "Dataset/ecommerce_sessions.csv"
-  data_dictionary: "Dataset/data_dictionary.csv"
+  dataset: "dataset/ecommerce_sessions.csv"
+  data_dictionary: "dataset/data_dictionary.csv"
   models_dir: "models/"
 
 random_seed: 42

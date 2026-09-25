@@ -1,0 +1,28 @@
+# Slim Python base — smaller image, faster builds, per PRD's lean-image guidance
+FROM python:3.12-slim
+
+# LightGBM requires libgomp1 at runtime (PRD §4.9 Student hint) — install it explicitly
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Copy only requirements first, so Docker caches this layer and doesn't
+# reinstall every package on every code change — only when requirements.txt changes
+COPY requirements-api.txt .
+RUN pip install --no-cache-dir -r requirements-api.txt
+
+# Now copy the actual project code and data
+COPY src/ ./src/
+COPY dataset/ ./dataset/
+COPY models/ ./models/
+COPY docs/ ./docs/
+
+# Non-root user — a basic security practice §4.9's Student hint calls out
+RUN useradd --create-home appuser
+USER appuser
+
+EXPOSE 8000
+
+CMD ["uvicorn", "src.api.main:app", "--host", "0.0.0.0", "--port", "8000"]
