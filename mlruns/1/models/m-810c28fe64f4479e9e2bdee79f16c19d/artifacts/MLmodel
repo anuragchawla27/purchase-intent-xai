@@ -1,0 +1,22 @@
+artifact_path: file:///C:/Users/DELL/OneDrive/Documents/Anurag/Anurag_Projects/INTERNMO/purchase-intent-xai/mlruns/1/models/m-810c28fe64f4479e9e2bdee79f16c19d/artifacts
+flavors:
+  catboost:
+    catboost_version: 1.2.10
+    code: null
+    data: model.cb
+    model_type: CatBoostClassifier
+    save_format: cbm
+  python_function:
+    data: model.cb
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.catboost
+    python_version: 3.12.4
+mlflow_version: 3.16.1
+model_id: m-810c28fe64f4479e9e2bdee79f16c19d
+model_size_bytes: 142008
+model_uuid: m-810c28fe64f4479e9e2bdee79f16c19d
+prompts: null
+run_id: 24f670afe38d49f5b5e30985aea7baf1
+utc_time_created: '2026-09-26 07:46:35.359917'
