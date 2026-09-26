@@ -2,3 +2,5 @@ venv/
 models/baseline_model.joblib
 catboost_info/
 mlflow.db
+mlruns/
+mlflow.db
